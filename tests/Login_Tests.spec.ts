@@ -1,75 +1,92 @@
-import { test, expect } from '@playwright/test';
-import { exec } from 'child_process';
-import { AuthorizePage} from '../page_object/login_page';
+import { test, expect} from '@playwright/test';
+import { AuthorizePage} from '../page_object/authorize_page';
 import { HomePage, baseUrl } from '../page_object/home_page';
 
+test.beforeEach(async ({ page }) => {
+  const homePage = new HomePage(page);
+  await page.goto(baseUrl); 
+  await expect(homePage.homePageTitle).toContainText(/SSL for everyday people/);   
+  await expect(homePage.homePageLoginButton).toBeVisible();
+  await homePage.homePageLoginButton.click();
+  await page.waitForURL(baseUrl + "authorize");  
+});
 
 
-
-
-test('Valid Login', async ({ page }) => {
+test('Check valid login', async ({ page }) => {
 
   const homePage = new HomePage(page);
   const authorizePage = new AuthorizePage(page);
   
   let email = "ssls.automation+666@gmail.com";
-  let password = "123456";  
+  let password = "123456";    
 
-  await page.goto(baseUrl);  
+  await expect(authorizePage.authorizationText).toHaveText("Authorization");   
 
-  
-  // Home page success loaded
-  await expect(homePage.getHomePageTitle()).toContain(/SSL for everyday people/);
+  await authorizePage.fillFields(email, password);
 
-  let loginButton = page.locator("#app > div > header > div > div > button:nth-child(2)");
+  await authorizePage.eyeButton.click(); 
 
-  await expect(loginButton).toBeVisible();
-  
-  await loginButton.click();
-
-  await page.waitForURL(baseUrl + "authorize");
-
-  let authorizationText = page.locator("body > div.container > div > ui-view > div > div > h1");
-
-  await expect(authorizationText).toHaveText("Authorization");
-
+  await expect(authorizePage.passwordField).toHaveAttribute('type', 'text');
    
+  const passwordFieldValue = await authorizePage.passwordField.inputValue();
+  await expect(passwordFieldValue).toBe(password);
 
-  await authorizePage.login(email, password);
-  
+  await authorizePage.login();
 
-  let emailButton = page.locator("#app > div > header > div > div > div.ssls-dropdown.ssls-header-user.ssls-header-dropdown > button > span");
+  await page.waitForURL(baseUrl + "user/bundles");  
+
+  let emailButton = page.locator("//button[contains(span[@class='ssls-toolbar__btn-text'], 'ssls.automation+666@gmail.com')]");
   await expect(emailButton).toHaveText(email);  
 
 });
 
-//test('Not registered user', async ({page}) => {
-  await page.goto(baseUrl);
 
-  let email = "test@email.com";
-  let password = "963852";
+test('Check not registered user', async ({ page }) => {
+
+  const homePage = new HomePage(page);
+  const authorizePage = new AuthorizePage(page);
   
-  let titleLocator = page.locator("#certs > div.ssls-heading > h1");
+  let email = "test@mail.com";
+  let password = "password";     
 
-  // Home page success loaded
-  await expect(titleLocator).toHaveText(/SSL for everyday people/);
+  await expect(authorizePage.authorizationText).toHaveText("Authorization");   
 
-  let loginButton = page.locator("#app > div > header > div > div > button:nth-child(2)");
+  await authorizePage.fillFields(email, password);
 
-  await expect(loginButton).toBeVisible();
+  await authorizePage.eyeButton.click(); 
+
+  await expect(authorizePage.passwordField).toHaveAttribute('type', 'text');
+   
+  const passwordFieldValue = await authorizePage.passwordField.inputValue();
+  await expect(passwordFieldValue).toBe(password);
+
+  await authorizePage.login();
+
+  await expect(authorizePage.errorMessage).toHaveText("Uh oh! Email or password is incorrect");     
+
+});
+
+test('Check invalid email', async ({ page }) => {
+
+  const homePage = new HomePage(page);
+  const authorizePage = new AuthorizePage(page);
   
-  await loginButton.click();
+  let email = "test@@mail.com";
+  let password = "password";      
 
-  await page.waitForURL(baseUrl + "authorize");
+  await expect(authorizePage.authorizationText).toHaveText("Authorization");   
 
-  let authorizationText = page.locator("body > div.container > div > ui-view > div > div > h1");
+  await authorizePage.fillFields(email, password);
 
-  await expect(authorizationText).toHaveText("Authorization");
+  await authorizePage.eyeButton.click(); 
 
-  let authorizePage = new AuthorizePage(page);
+  await expect(authorizePage.passwordField).toHaveAttribute('type', 'text');
+   
+  const passwordFieldValue = await authorizePage.passwordField.inputValue();
+  await expect(passwordFieldValue).toBe(password);  
 
-  await authorizePage.login(email, password);
+  await expect(await authorizePage.getTooltipText()).toMatch(/Uh oh! This[\s\S]*isn’t an email/);     
 
+});
 
-//})
 
