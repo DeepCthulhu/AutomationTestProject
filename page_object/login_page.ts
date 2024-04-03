@@ -1,6 +1,6 @@
-export let baseUrl = "https://www.sbzend.ssls.com/";
 
 import { expect, type Locator, type Page } from '@playwright/test';
+import { baseUrl } from './home_page';
 
 export class AuthorizePage {
     readonly page: Page;
@@ -26,4 +26,6 @@ export class AuthorizePage {
 
 }
 
+
+export { baseUrl };
 
