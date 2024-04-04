@@ -4,9 +4,8 @@ This project contains a set of tests that use Playwright and TypeScript for auto
 # Requirements
 Before using this project, make sure you have the following components installed:
 
-1. Node.js (version 14.x or later recommended)
+1. Node.js (version 18.x or later recommended)
 2. npm (comes with Node.js)
-3. Playwright
 
 
 # How to start project
@@ -15,16 +14,28 @@ Before using this project, make sure you have the following components installed
 ```bash
 git clone https://github.com/DeepCthulhu/AutomationTestProject
 ```
+
 2. Go to the project directory:
 ```bash
-cd project-directory
+cd AutomationTestProject
 ```
+
 3. Install dependencies:
 ```bash
 npm install
 ```
-4. Run the tests using the following commands
+
+4. Run the tests using the following command:
 ```bash
-npm i
-npx playwright test --ui
+npm run test
+```
+
+5. Run and Debug the tests using the following command:
+```bash
+npm run test:debug
+```
+
+6. Open tests report:
+```bash
+npx playwright show-report
 ```
